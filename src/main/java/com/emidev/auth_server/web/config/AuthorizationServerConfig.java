@@ -57,7 +57,8 @@ public class AuthorizationServerConfig {
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource())) // <--- ¡AQUÍ!
                 .authorizeHttpRequests((authorize) ->
                         authorize
-                                .anyRequest().authenticated()
+                                .requestMatchers("/oauth2/token","/api/**").permitAll()
+                                //.anyRequest().authenticated()
                 )
                 // Redirect to the login page when not authenticated from the
                 // authorization endpoint
@@ -79,8 +80,9 @@ public class AuthorizationServerConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfig.corsConfigurationSource()))
                 .authorizeHttpRequests((request)->request
-                        .requestMatchers("/oauth2/token").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/oauth2/token","/api/**").permitAll()
+                        //.anyRequest().authenticated()
+                )
                 // Form login handles the redirect to the login page from the
                 // authorization server filter chain
                 .formLogin(Customizer.withDefaults())

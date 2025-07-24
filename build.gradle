@@ -12,6 +12,9 @@ java {
 		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
+ext {
+	mapstructVersion = "1.6.3"
+}
 
 repositories {
 	mavenCentral()
@@ -25,6 +28,8 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	compileOnly 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
+	implementation "org.mapstruct:mapstruct:${mapstructVersion}"
+	annotationProcessor "org.mapstruct:mapstruct-processor:${mapstructVersion}"
 
 	//implementation 'org.springframework.boot:spring-boot-starter-validation'
 
