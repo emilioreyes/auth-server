@@ -6,6 +6,8 @@ import com.emidev.auth_server.persistence.entity.seguridad.SegUsuarioEntity;
 import com.emidev.auth_server.persistence.mapper.seguridad.SegUsuarioMapper;
 import com.emidev.auth_server.persistence.mapper.seguridad.helper.SegUsuarioMapperHelper;
 import com.emidev.auth_server.persistence.repository.seguridad.SegUsuarioRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,12 +28,16 @@ public class SegUsuarioRepositoryDomainImpl implements SegUsuarioRepositoryDomai
 
     @Override
     public SegUsuarioDTO save(SegUsuarioDTO user) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         SegUsuarioEntity usuarioEntity = segUsuarioMapper.toEntity(user);
         return segUsuarioMapper.toDto(segUsuarioRepository.save(usuarioEntity),segUsuarioMapperHelper);
     }
 
     @Override
     public SegUsuarioDTO update(SegUsuarioDTO user, Long id) {
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         return segUsuarioRepository.findById(id).map(entity->{
             entity.setUsuario(user.getUsername());
             entity.setClave(user.getPassword());
