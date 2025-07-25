@@ -6,7 +6,9 @@ import java.security.KeyPair;
         import java.security.interfaces.RSAPublicKey;
 import java.util.UUID;
 
+import com.emidev.auth_server.domain.service.UserDetailService;
 import com.emidev.auth_server.web.config.CorsConfig;
+import com.emidev.auth_server.domain.service.seguridad.SegUsuarioService;
 import com.nimbusds.jose.jwk.JWKSet;
         import com.nimbusds.jose.jwk.RSAKey;
         import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -25,6 +27,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.core.userdetails.User;
         import org.springframework.security.core.userdetails.UserDetails;
         import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
         import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
@@ -57,6 +61,7 @@ public class AuthorizationServerConfig {
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource())) // <--- ¡AQUÍ!
                 .authorizeHttpRequests((authorize) ->
                         authorize
+                                .requestMatchers("/oauth2/token").permitAll()
                                 .anyRequest().authenticated()
                 )
                 // Redirect to the login page when not authenticated from the
@@ -80,7 +85,8 @@ public class AuthorizationServerConfig {
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfig.corsConfigurationSource()))
                 .authorizeHttpRequests((request)->request
                         .requestMatchers("/oauth2/token").permitAll()
-                        .anyRequest().authenticated())
+                        .anyRequest().authenticated()
+                )
                 // Form login handles the redirect to the login page from the
                 // authorization server filter chain
                 .formLogin(Customizer.withDefaults())
@@ -92,16 +98,9 @@ public class AuthorizationServerConfig {
         return http.build();
     }
 
-
     @Bean
-    public UserDetailsService userDetailsService() {
-        UserDetails userDetails = User.builder()
-                .username("emilio")
-                .password("{noop}12345")
-                .roles("USER")
-                .build();
-
-        return new InMemoryUserDetailsManager(userDetails);
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean

@@ -28,8 +28,8 @@ INSERT INTO oauth2_client (
 -- Cliente público Angular
 (
     'angular-client',
-    NULL,
-    'none',
+    '{noop}123456',
+    'client_secret_basic',
     'authorization_code,refresh_token',
     'http://localhost:4200/authorized',
     NULL,

@@ -1,6 +1,7 @@
 package com.emidev.auth_server.web.util;
 
 import com.emidev.auth_server.persistence.entity.OAuth2ClientEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -16,7 +17,6 @@ import java.util.UUID;
  */
 public class RegisteredClientFactory {
     public static RegisteredClient fromEntity(OAuth2ClientEntity entity){
-
         RegisteredClient.Builder builder = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId(entity.getClientId())
                 .clientSecret(entity.getClientSecret())
@@ -30,7 +30,7 @@ public class RegisteredClientFactory {
                         .reuseRefreshTokens(true) // Permitir reutilización de tokens de actualización
                         .build()
                 );
-System.out.println(entity.getScopes());
+
         Arrays.stream(entity.getClientAuthenticationMethods().split(","))
                 .map(String::trim)
                 .filter(s-> !s.isEmpty())
