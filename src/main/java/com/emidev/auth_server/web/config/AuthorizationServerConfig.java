@@ -59,9 +59,14 @@ public class AuthorizationServerConfig {
                                 .oidc(Customizer.withDefaults())	// Enable OpenID Connect 1.0
                 )
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource())) // <--- ¡AQUÍ!
-                .authorizeHttpRequests((authorize) ->
-                        authorize
-                                .requestMatchers("/oauth2/token").permitAll()
+                .authorizeHttpRequests(authorize ->
+                        authorize.requestMatchers(
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/v3/api-docs/**",
+                                        "/v3/api-docs.yaml"
+                                ).hasRole("ADMIN")
+                             .requestMatchers("/oauth2/token").permitAll()
                                 .anyRequest().authenticated()
                 )
                 // Redirect to the login page when not authenticated from the
@@ -83,8 +88,15 @@ public class AuthorizationServerConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfig.corsConfigurationSource()))
-                .authorizeHttpRequests((request)->request
-                        .requestMatchers("/oauth2/token").permitAll()
+                .authorizeHttpRequests((request)->
+                                request.requestMatchers(
+                                        "/swagger-ui/**",
+                                        "/swagger-ui.html",
+                                        "/v3/api-docs/**",
+                                        "/v3/api-docs.yaml"
+                                ).hasRole("ADMIN")
+
+                                        .requestMatchers("/oauth2/token").permitAll()
                         .anyRequest().authenticated()
                 )
                 // Form login handles the redirect to the login page from the
