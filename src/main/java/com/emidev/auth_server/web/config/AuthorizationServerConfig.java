@@ -4,11 +4,10 @@ import java.security.KeyPair;
         import java.security.KeyPairGenerator;
         import java.security.interfaces.RSAPrivateKey;
         import java.security.interfaces.RSAPublicKey;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
-import com.emidev.auth_server.domain.service.UserDetailService;
-import com.emidev.auth_server.web.config.CorsConfig;
-import com.emidev.auth_server.domain.service.seguridad.SegUsuarioService;
 import com.nimbusds.jose.jwk.JWKSet;
         import com.nimbusds.jose.jwk.RSAKey;
         import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
@@ -24,17 +23,14 @@ import org.springframework.core.annotation.Order;
         import org.springframework.security.config.annotation.web.builders.HttpSecurity;
         import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-        import org.springframework.security.core.userdetails.UserDetails;
-        import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
         import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
         import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-        import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.SecurityFilterChain;
         import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
         import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
@@ -42,6 +38,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @EnableWebSecurity(debug = true)
 @Import(CorsConfig.class)
 public class AuthorizationServerConfig {
+
+    public static final String BCRYPT_ENCODER_STRATEGY_NAME="bcrypt";
+    private static final int BCRYPT_STRENGTH = 12;
     private final CorsConfig corsConfig;
     public AuthorizationServerConfig(CorsConfig corsConfig) {
         this.corsConfig = corsConfig;
@@ -59,11 +58,12 @@ public class AuthorizationServerConfig {
                                 .oidc(Customizer.withDefaults())	// Enable OpenID Connect 1.0
                 )
                 .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource())) // <--- ¡AQUÍ!
-                .authorizeHttpRequests((authorize) ->
-                        authorize
-                                .requestMatchers("/oauth2/token").permitAll()
-                                .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(authorize ->{
+                            SecurityRulesHelper.configureSwaggerAccess(authorize);
+                            SecurityRulesHelper.configureTokenAccess(authorize);
+                            authorize.anyRequest().authenticated();
+                        })
+
                 // Redirect to the login page when not authenticated from the
                 // authorization endpoint
                 .exceptionHandling((exceptions) -> exceptions
@@ -83,13 +83,14 @@ public class AuthorizationServerConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfig.corsConfigurationSource()))
-                .authorizeHttpRequests((request)->request
-                        .requestMatchers("/oauth2/token").permitAll()
-                        .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests((request)->{
+                            SecurityRulesHelper.configureSwaggerAccess(request);
+                            SecurityRulesHelper.configureTokenAccess(request);
+                            request.anyRequest().authenticated();
+                        })
                 // Form login handles the redirect to the login page from the
                 // authorization server filter chain
-                .formLogin(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults() )
                 .logout(logout-> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("http://localhost:4200")
@@ -100,7 +101,9 @@ public class AuthorizationServerConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        Map<String, PasswordEncoder> encoders=new HashMap<>();
+        encoders.put(BCRYPT_ENCODER_STRATEGY_NAME, new BCryptPasswordEncoder(BCRYPT_STRENGTH));
+        return new DelegatingPasswordEncoder(BCRYPT_ENCODER_STRATEGY_NAME, encoders);
     }
 
     @Bean
