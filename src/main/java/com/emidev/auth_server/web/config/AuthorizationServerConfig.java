@@ -1,109 +1,76 @@
 package com.emidev.auth_server.web.config;
 
-import java.security.KeyPair;
-        import java.security.KeyPairGenerator;
-        import java.security.interfaces.RSAPrivateKey;
-        import java.security.interfaces.RSAPublicKey;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import com.nimbusds.jose.jwk.JWKSet;
-        import com.nimbusds.jose.jwk.RSAKey;
-        import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
-        import com.nimbusds.jose.jwk.source.JWKSource;
-        import com.nimbusds.jose.proc.SecurityContext;
-
-        import org.springframework.context.annotation.Bean;
-        import org.springframework.context.annotation.Configuration;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-        import org.springframework.http.MediaType;
-        import org.springframework.security.config.Customizer;
-        import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-        import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.http.MediaType;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
-        import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
-        import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
+import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
+import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
-        import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-        import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 
-@Configuration
-@EnableWebSecurity(debug = true)
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+/**
+ * The Authorization Server Configuration.
+ * Is responsible for issuing access tokens to the client after successfully authenticating the resource owner and obtaining authorization.
+ * The Authorization Server is a role defined in the OAuth 2.0 Authorization Framework.
+ *
+ */
+@Configuration(proxyBeanMethods = false)
 @Import(CorsConfig.class)
 public class AuthorizationServerConfig {
 
-    public static final String BCRYPT_ENCODER_STRATEGY_NAME="bcrypt";
-    private static final int BCRYPT_STRENGTH = 12;
     private final CorsConfig corsConfig;
     public AuthorizationServerConfig(CorsConfig corsConfig) {
         this.corsConfig = corsConfig;
     }
+
     @Bean
-    @Order(1)
+    @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
             throws Exception {
         OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
 
-        http
-                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
-                .with(authorizationServerConfigurer, (authorizationServer) ->
-                        authorizationServer
-                                .oidc(Customizer.withDefaults())	// Enable OpenID Connect 1.0
-                )
-                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource())) // <--- ¡AQUÍ!
-                .authorizeHttpRequests(authorize ->{
-                            SecurityRulesHelper.configureSwaggerAccess(authorize);
-                            SecurityRulesHelper.configureTokenAccess(authorize);
-                            authorize.anyRequest().authenticated();
-                        })
+        http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher()).with(authorizationServerConfigurer, (authorizationServer) ->
+                authorizationServer.oidc(Customizer.withDefaults()));// Enable OpenID Connect 1.0
+        http.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()));
+        http.csrf(AbstractHttpConfigurer::disable);
+       /* http.authorizeHttpRequests(request->{
+            request.requestMatchers("/default-ui.css ","/.well-known/**","/error").permitAll();
 
-                // Redirect to the login page when not authenticated from the
-                // authorization endpoint
-                .exceptionHandling((exceptions) -> exceptions
-                        .defaultAuthenticationEntryPointFor(
-                                new LoginUrlAuthenticationEntryPoint("/login"),
-                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                        )
-                );
-
+        });*/
+        http.exceptionHandling(exceptions -> exceptions
+                .defaultAuthenticationEntryPointFor(
+                        new LoginUrlAuthenticationEntryPoint("/login"),
+                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                ));
+        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> Customizer.withDefaults()));
         return http.build();
-    }
-
-    @Bean
-    @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
-            throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfig.corsConfigurationSource()))
-                .authorizeHttpRequests((request)->{
-                            SecurityRulesHelper.configureSwaggerAccess(request);
-                            SecurityRulesHelper.configureTokenAccess(request);
-                            request.anyRequest().authenticated();
-                        })
-                // Form login handles the redirect to the login page from the
-                // authorization server filter chain
-                .formLogin(Customizer.withDefaults() )
-                .logout(logout-> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("http://localhost:4200")
-                        .invalidateHttpSession(true)
-                        .clearAuthentication(true));
-        return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        Map<String, PasswordEncoder> encoders=new HashMap<>();
-        encoders.put(BCRYPT_ENCODER_STRATEGY_NAME, new BCryptPasswordEncoder(BCRYPT_STRENGTH));
-        return new DelegatingPasswordEncoder(BCRYPT_ENCODER_STRATEGY_NAME, encoders);
     }
 
     @Bean
@@ -125,8 +92,7 @@ public class AuthorizationServerConfig {
             KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
             keyPairGenerator.initialize(2048);
             keyPair = keyPairGenerator.generateKeyPair();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             throw new IllegalStateException(ex);
         }
         return keyPair;
@@ -142,4 +108,17 @@ public class AuthorizationServerConfig {
         return AuthorizationServerSettings.builder().build();
     }
 
+    @Bean
+    public OAuth2TokenCustomizer<JwtEncodingContext> jwtCustomizer() {
+        return context -> {
+            if (OAuth2TokenType.ACCESS_TOKEN.equals(context.getTokenType())) {
+                context.getClaims().claims(claims -> {
+                    Authentication principal = context.getPrincipal();
+                    claims.put(OAuth2TokenIntrospectionClaimNames.TOKEN_TYPE, SecurityConstants.ACCESS_TOKEN_VALUE);
+                    Set<String> roles = principal.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toSet());
+                    claims.put(SecurityConstants.ROLES_CLAIM, roles);
+                });
+            }
+        };
+    }
 }
