@@ -54,22 +54,30 @@ public class AuthorizationServerConfig {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http)
             throws Exception {
-        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer = OAuth2AuthorizationServerConfigurer.authorizationServer();
 
-        http.securityMatcher(authorizationServerConfigurer.getEndpointsMatcher()).with(authorizationServerConfigurer, (authorizationServer) ->
-                authorizationServer.oidc(Customizer.withDefaults()));// Enable OpenID Connect 1.0
-        http.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()));
-        http.csrf(AbstractHttpConfigurer::disable);
-       /* http.authorizeHttpRequests(request->{
-            request.requestMatchers("/default-ui.css ","/.well-known/**","/error").permitAll();
+        OAuth2AuthorizationServerConfigurer authorizationServerConfigurer =
+                OAuth2AuthorizationServerConfigurer.authorizationServer();
 
-        });*/
-        http.exceptionHandling(exceptions -> exceptions
-                .defaultAuthenticationEntryPointFor(
-                        new LoginUrlAuthenticationEntryPoint("/login"),
-                        new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
-                ));
-        http.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> Customizer.withDefaults()));
+        http
+                .cors(cors->cors.configurationSource(corsConfig.corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
+                .securityMatcher(authorizationServerConfigurer.getEndpointsMatcher())
+                .with(authorizationServerConfigurer, (authorizationServer) ->
+                        authorizationServer.oidc(Customizer.withDefaults())	// Enable OpenID Connect 1.0
+                )
+                .authorizeHttpRequests((authorize) -> {
+                    authorize.anyRequest().authenticated();
+                })
+                .oauth2ResourceServer(oauth2->oauth2.jwt(jwt->Customizer.withDefaults()))
+                // Redirect to the login page when not authenticated from the
+                // authorization endpoint
+                .exceptionHandling((exceptions) -> exceptions
+                        .defaultAuthenticationEntryPointFor(
+                                new LoginUrlAuthenticationEntryPoint("/login"),
+                                new MediaTypeRequestMatcher(MediaType.TEXT_HTML)
+                        )
+                );
+
         return http.build();
     }
 

@@ -1,6 +1,5 @@
 package com.emidev.auth_server.web.config;
 
-import com.emidev.auth_server.web.controller.seguridad.CustomRequestCache;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -10,7 +9,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,14 +34,18 @@ public class SecurityConfig {
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http)
             throws Exception {
         Converter<Jwt, AbstractAuthenticationToken> jwtAuthenticationConverter = new JwtAuthenticationConverterCustom();
-        http.authorizeHttpRequests(auth -> {
-                    SecurityRulesHelper.configureWhiteList(auth);
-                    SecurityRulesHelper.configureAdminList(auth);
-                    auth.anyRequest().authenticated();
+        http
+                .cors(cors->cors.configurationSource(corsConfig.corsConfigurationSource()))
+                .authorizeHttpRequests((authorize) ->{
+                        SecurityRulesHelper.configureWhiteList(authorize);
+                        SecurityRulesHelper.configureAdminList(authorize);
+                        authorize.anyRequest().authenticated();
                 })
+                // Form login handles the redirect to the login page from the
+                // authorization server filter chain
                 .formLogin(Customizer.withDefaults())
-                .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .oauth2ResourceServer(oauth2ResourceServerCustomizer);
+
         return http.build();
     }
     private final Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> oauth2ResourceServerCustomizer = oauth2ResourceServer -> {
