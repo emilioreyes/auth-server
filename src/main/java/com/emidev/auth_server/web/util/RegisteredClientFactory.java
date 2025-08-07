@@ -1,7 +1,6 @@
 package com.emidev.auth_server.web.util;
 
 import com.emidev.auth_server.persistence.entity.OAuth2ClientEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
@@ -22,7 +21,7 @@ public class RegisteredClientFactory {
                 .clientSecret(entity.getClientSecret())
                 .clientSettings(ClientSettings.builder()
                         .requireAuthorizationConsent(entity.isRequireConsent())
-                        .requireProofKey(false)
+                        .requireProofKey(true)
                         .build())
                 .tokenSettings(TokenSettings.builder()
                         .accessTokenTimeToLive(Duration.ofMinutes(entity.getAccessTokenTtlMinutes())) // Token de acceso válido por 1 hora

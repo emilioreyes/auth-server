@@ -3,6 +3,7 @@ package com.emidev.auth_server.domain.service;
 import com.emidev.auth_server.domain.dto.seguridad.SegRolSimpleDTO;
 import com.emidev.auth_server.domain.dto.seguridad.SegUsuarioDTO;
 import com.emidev.auth_server.domain.service.seguridad.SegUsuarioService;
+import com.emidev.auth_server.web.config.SecurityConstants;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -37,7 +38,7 @@ public class UserDetailService implements UserDetailsService {
     private List<GrantedAuthority> getAuthoritiesEntities(List<SegRolSimpleDTO> userRoles) {
         Set<GrantedAuthority> roles = new HashSet<>();
         userRoles.forEach((role) -> {
-            roles.add(new SimpleGrantedAuthority("ROLE_".concat(role.getRol())));
+            roles.add(new SimpleGrantedAuthority(role.getRol()));
         });
 
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>(roles);

@@ -29,10 +29,11 @@ public class RegisteredClientConfig {
         /**
          * Convierte las entidades de cliente OAuth2 a RegisteredClient.
          */
-        List<RegisteredClient> registeredClients = clientEntities.stream()
+       List<RegisteredClient> registeredClients = clientEntities.stream()
                 .map(RegisteredClientFactory::fromEntity)
                 .collect(Collectors.toList());
 
         return new InMemoryRegisteredClientRepository(registeredClients);
+
     }
 }
