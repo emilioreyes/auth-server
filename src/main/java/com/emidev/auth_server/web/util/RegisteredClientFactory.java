@@ -21,7 +21,7 @@ public class RegisteredClientFactory {
                 .clientSecret(entity.getClientSecret())
                 .clientSettings(ClientSettings.builder()
                         .requireAuthorizationConsent(entity.isRequireConsent())
-                        .requireProofKey(true)
+                        .requireProofKey(entity.isRequireProofKey())
                         .build())
                 .tokenSettings(TokenSettings.builder()
                         .accessTokenTimeToLive(Duration.ofMinutes(entity.getAccessTokenTtlMinutes())) // Token de acceso válido por 1 hora

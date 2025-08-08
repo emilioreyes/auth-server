@@ -9,33 +9,36 @@ INSERT INTO oauth2_client (
     require_consent,
     access_token_ttl_minutes,
     refresh_token_ttl_minutes,
-    enabled
+    enabled,
+    require_proof_key
 ) VALUES
 -- Cliente confidencial
 (
-    'client-app',
-    '{noop}12345',
+    'user-app',
+    '$2a$12$Ss4r9UEPKp53dy9Y5H1Q6OvfbIOlPhoY4Gazkbose7PN9YIURzfQq',
     'client_secret_basic',
     'authorization_code,refresh_token',
-    'http://127.0.0.1:8081/login/oauth/code/client-app,http://127.0.0.1:8081/authorized',
+    'http://127.0.0.1:8081/login/oauth/code/user-app,http://127.0.0.1:8081/authorized',
     'http://127.0.0.1:8081/logout',
     'read,write,openid,profile',
     false,
     60,
     43200,
+    true,
     true
 ),
 -- Cliente público Angular
 (
     'angular-client',
-    '{noop}123456',
+    '$2a$10$KMKd/K5kvFFAB417FO0af.tIdyjzk3PwP5CjGw0Dbc4KTb.LH/9mi',
     'client_secret_basic',
     'authorization_code,refresh_token',
-    'http://localhost:4200/authorized',
+    'http://127.0.0.1:4200/authorized',
     NULL,
     'read,write,openid,profile',
     false,
     60,
     43200,
+    true,
     true
 );

@@ -47,6 +47,9 @@ public class OAuth2ClientEntity {
     @Column(name = "enabled", nullable = true)
     private boolean enabled = true;
 
+    @Column(name = "require_proof_key", nullable = false)
+    private boolean requireProofKey = false;
+
     public boolean isPublicClient() {
         return clientAuthenticationMethods != null && clientAuthenticationMethods.contains("none");
     }
