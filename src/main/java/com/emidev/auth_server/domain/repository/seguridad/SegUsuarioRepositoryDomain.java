@@ -8,9 +8,5 @@ public interface SegUsuarioRepositoryDomain {
 
     // Define methods for user repository operations
     // For example:
-     SegUsuarioDTO save(SegUsuarioDTO user);
-     SegUsuarioDTO update(SegUsuarioDTO user, Long id);
-     Boolean delete(Long userId);
-     List<SegUsuarioDTO> getAll();
      SegUsuarioDTO getByUsername(String username);
 }

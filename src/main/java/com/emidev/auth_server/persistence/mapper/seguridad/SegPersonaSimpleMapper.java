@@ -1,6 +1,5 @@
 package com.emidev.auth_server.persistence.mapper.seguridad;
 
-import com.emidev.auth_server.domain.dto.seguridad.SegPersonaDTO;
 import com.emidev.auth_server.domain.dto.seguridad.SegPersonaSimpleDTO;
 import com.emidev.auth_server.persistence.entity.seguridad.SegPersonaEntity;
 import org.mapstruct.Mapper;

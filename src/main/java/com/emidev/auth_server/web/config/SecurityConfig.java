@@ -37,8 +37,6 @@ public class SecurityConfig {
         http
                 .cors(cors->cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .authorizeHttpRequests((authorize) ->{
-                        SecurityRulesHelper.configureWhiteList(authorize);
-                        SecurityRulesHelper.configureAdminList(authorize);
                         authorize.anyRequest().authenticated();
                 })
                 // Form login handles the redirect to the login page from the

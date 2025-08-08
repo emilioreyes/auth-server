@@ -1,18 +1,11 @@
 package com.emidev.auth_server.persistence.mapper.seguridad;
 
-import com.emidev.auth_server.domain.dto.seguridad.SegPersonaDTO;
-import com.emidev.auth_server.domain.dto.seguridad.SegRolDTO;
-import com.emidev.auth_server.domain.dto.seguridad.SegRolSimpleDTO;
 import com.emidev.auth_server.domain.dto.seguridad.SegUsuarioDTO;
-import com.emidev.auth_server.persistence.entity.seguridad.SegRolEntity;
 import com.emidev.auth_server.persistence.entity.seguridad.SegUsuarioEntity;
-import com.emidev.auth_server.persistence.entity.seguridad.SegUsuarioRolEntity;
 import com.emidev.auth_server.persistence.mapper.seguridad.helper.SegUsuarioMapperHelper;
 import org.mapstruct.*;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring",  uses = {SegPersonaSimpleMapper.class})
 public interface SegUsuarioMapper {

@@ -15,15 +15,6 @@ public class SegUsuarioService {
         this.segUsuarioRepository = segUsuarioRepository;
     }
 
-    public SegUsuarioDTO save(SegUsuarioDTO user) {
-        return segUsuarioRepository.save(user);
-    }
-    public SegUsuarioDTO update(SegUsuarioDTO user, Long id) {
-        return segUsuarioRepository.update(user, id);
-    }
-    public List<SegUsuarioDTO> getAll() {
-        return segUsuarioRepository.getAll();
-    }
     public SegUsuarioDTO getByUsername(String username) {
         return segUsuarioRepository.getByUsername(username);
     }
