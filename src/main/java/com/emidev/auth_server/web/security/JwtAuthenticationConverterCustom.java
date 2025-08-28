@@ -1,4 +1,4 @@
-package com.emidev.auth_server.web.config;
+package com.emidev.auth_server.web.security;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

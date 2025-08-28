@@ -1,4 +1,4 @@
-package com.emidev.auth_server.web.config;
+package com.emidev.auth_server.web.security;
 
 public final class SecurityConstants {
 

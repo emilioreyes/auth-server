@@ -8,5 +8,4 @@ import java.util.List;
 @Getter @Setter
 public class SegUsuarioDTO extends SegUsuarioBase {
     private List<SegRolSimpleDTO> roles;
-    private SegPersonaSimpleDTO person;
 }

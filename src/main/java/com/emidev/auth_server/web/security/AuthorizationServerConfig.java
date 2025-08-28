@@ -1,5 +1,6 @@
-package com.emidev.auth_server.web.config;
+package com.emidev.auth_server.web.security;
 
+import com.emidev.auth_server.web.config.CorsConfig;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;

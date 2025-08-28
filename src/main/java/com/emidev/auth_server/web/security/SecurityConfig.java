@@ -1,5 +1,6 @@
-package com.emidev.auth_server.web.config;
+package com.emidev.auth_server.web.security;
 
+import com.emidev.auth_server.web.config.CorsConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;

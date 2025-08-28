@@ -7,13 +7,12 @@ import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring",  uses = {SegPersonaSimpleMapper.class})
+@Mapper(componentModel = "spring")
 public interface SegUsuarioMapper {
     @Mappings({
             @Mapping(source = "usuario", target = "username"),
             @Mapping(source = "clave", target = "password"),
             @Mapping(source = "estado", target = "estate"),
-            @Mapping(source = "persona", target = "person"),
             @Mapping(target = "roles", expression = "java(segUsuarioMapperHelper.mapRoles(usuarioEntity.getUsuarioRol()))")
     })
     SegUsuarioDTO toDto(SegUsuarioEntity usuarioEntity, @Context SegUsuarioMapperHelper segUsuarioMapperHelper);
