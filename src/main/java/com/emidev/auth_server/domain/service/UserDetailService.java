@@ -3,7 +3,6 @@ package com.emidev.auth_server.domain.service;
 import com.emidev.auth_server.domain.dto.seguridad.SegRolSimpleDTO;
 import com.emidev.auth_server.domain.dto.seguridad.SegUsuarioDTO;
 import com.emidev.auth_server.domain.service.seguridad.SegUsuarioService;
-import com.emidev.auth_server.web.config.SecurityConstants;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;

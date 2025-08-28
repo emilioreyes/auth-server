@@ -24,7 +24,7 @@ public class RegisteredClientFactory {
                         .requireProofKey(entity.isRequireProofKey())
                         .build())
                 .tokenSettings(TokenSettings.builder()
-                        .accessTokenTimeToLive(Duration.ofMinutes(entity.getAccessTokenTtlMinutes())) // Token de acceso válido por 1 hora
+                        .accessTokenTimeToLive(Duration.ofMinutes(5)) // Token de acceso válido por 1 hora
                         .refreshTokenTimeToLive(Duration.ofHours(entity.getRefreshTokenTtlMinutes())) // Token de actualización válido por 30 días
                         .reuseRefreshTokens(true) // Permitir reutilización de tokens de actualización
                         .build()

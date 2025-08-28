@@ -1,17 +1,13 @@
 package com.emidev.auth_server.persistence.entity.seguridad;
 
 import com.emidev.auth_server.persistence.entity.PropiedadesComunesEntity;
-import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Where;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -31,11 +27,5 @@ public class SegUsuarioEntity extends PropiedadesComunesEntity {
     @Where(clause = "estado IS NULL")
     @JsonManagedReference(value = "usuarioRol")
     private Set<SegUsuarioRolEntity> usuarioRol;
-
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_persona", referencedColumnName = "id", nullable = false)
-    @JsonManagedReference(value = "usuarioPersona")
-    private SegPersonaEntity persona;
-
 
 }

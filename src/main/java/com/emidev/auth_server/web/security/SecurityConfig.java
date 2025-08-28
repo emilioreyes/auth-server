@@ -1,5 +1,6 @@
-package com.emidev.auth_server.web.config;
+package com.emidev.auth_server.web.security;
 
+import com.emidev.auth_server.web.config.CorsConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -37,8 +38,6 @@ public class SecurityConfig {
         http
                 .cors(cors->cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .authorizeHttpRequests((authorize) ->{
-                        SecurityRulesHelper.configureWhiteList(authorize);
-                        SecurityRulesHelper.configureAdminList(authorize);
                         authorize.anyRequest().authenticated();
                 })
                 // Form login handles the redirect to the login page from the

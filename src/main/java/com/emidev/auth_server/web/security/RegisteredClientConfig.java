@@ -1,4 +1,4 @@
-package com.emidev.auth_server.web.config;
+package com.emidev.auth_server.web.security;
 
 import com.emidev.auth_server.domain.service.OAuth2ClientService;
 import com.emidev.auth_server.persistence.entity.OAuth2ClientEntity;
